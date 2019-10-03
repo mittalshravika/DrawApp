@@ -48,7 +48,7 @@ public class CanvasViewServer extends View {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(4f);
 
-        new AsynchServer().execute();
+        new AsyncServer().execute();
     }
 
     @Override
@@ -93,12 +93,12 @@ public class CanvasViewServer extends View {
 
     private ObjectOutputStream output;
     private ObjectInputStream input;
-    class AsynchServer extends AsyncTask<Void, Void, CanvasObject> {
+    class AsyncServer extends AsyncTask<Void, Void, String> {
 
         @Override
-        protected CanvasObject doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
             Socket socket;
-            CanvasObject data= new CanvasObject(0,0,0);
+            String data= "";
             try {
                 serverSocket = new ServerSocket(SERVER_PORT);
                 Log.d("SOCKET", "socket created");
@@ -110,8 +110,9 @@ public class CanvasViewServer extends View {
                     while(!Thread.currentThread().isInterrupted())
                     {
                         try {
-                            data = (CanvasObject) input.readObject();
-
+                            data = (String) input.readObject();
+                            serverSocket.close();
+                            return data;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -126,28 +127,33 @@ public class CanvasViewServer extends View {
         }
 
         @Override
-        protected void onPostExecute(CanvasObject data) {
+        protected void onPostExecute(String data) {
             super.onPostExecute(data);
             try {
                 if (data != null) {
-                    Log.d("SOCKET",data.x + " " + data.y + " " + data.flag);
-                    float x = data.x;
-                    float y = data.y;
+                    Log.d("SOCKET",data);
+                    String[] points = data.split(";");
+                    for (int i = 0 ; i < points.length ; i++){
+                        String pt = points[i];
+                        String[] val = pt.split(",");
+                        float x = Float.parseFloat(val[0]);
+                        float y = Float.parseFloat(val[1]);
+                        int flag = Integer.parseInt(val[2]);
 
-                    switch (data.flag){
-
-                        case -1:
-                            StartTouch(x, y);
-                            invalidate();
-                            break;
-                        case 0:
-                            moveTouch(x, y);
-                            invalidate();
-                            break;
-                        case 1:
-                            upTouch();
-                            invalidate();
-                            break;
+                        switch (flag){
+                            case -1:
+                                StartTouch(x, y);
+                                invalidate();
+                                break;
+                            case 0:
+                                moveTouch(x, y);
+                                invalidate();
+                                break;
+                            case 1:
+                                upTouch();
+                                invalidate();
+                                break;
+                        }
                     }
                 }
                 else{

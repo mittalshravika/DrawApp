@@ -13,9 +13,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
 // MainActivity.java
 
-public class CanvasViewClient extends View{
+public class CanvasViewClient extends View {
 
     public int width;
     public int height;
@@ -27,6 +29,7 @@ public class CanvasViewClient extends View{
     private static final float TOLERANCE = 5;
     Context context;
     private static CanvasObject client_data;
+    String pl = "";
 
     public CanvasViewClient(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -88,30 +91,25 @@ public class CanvasViewClient extends View{
         float x = event.getX();
         float y = event.getY();
 
-        AsyncTask client;
-
         switch (event.getAction()){
-
             case MotionEvent.ACTION_DOWN:
                 client_data = new CanvasObject(x, y, -1);
+                pl = pl + x + "," + y +"," + "-1" + ";";
                 Log.d("SOCKET", client_data.x + " " + client_data.y + " " + client_data.flag);
-                client =  new Client().execute(client_data);
                 StartTouch(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 client_data = new CanvasObject(x, y, 0);
+                pl = pl + x + "," + y +"," + "0" + ";";
                 Log.d("SOCKET", client_data.x + " " + client_data.y + " " + client_data.flag);
-                client =  new Client().execute(client_data);
-                client.cancel(true);
                 moveTouch(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 client_data = new CanvasObject(x, y, 1);
+                pl = pl + x + "," + y +"," + "1" + ";";
                 Log.d("SOCKET", client_data.x + " " + client_data.y + " " + client_data.flag);
-                client =  new Client().execute(client_data);
-                client.cancel(true);
                 upTouch();
                 invalidate();
                 break;
@@ -119,7 +117,3 @@ public class CanvasViewClient extends View{
         return true;
     }
 }
-//if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-//        client.executeOnExecutor(Client.THREAD_POOL_EXECUTOR, client_data);
-//        else
-//        client.execute(client_data);

@@ -21,7 +21,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
 
-public class Client extends AsyncTask<CanvasObject, Void, CanvasObject> {
+public class Client extends AsyncTask<String, Void, Void> {
     static String SERVER_IP = "192.168.164.156";
     static int SERVER_PORT = 8080;
 
@@ -68,7 +68,7 @@ public class Client extends AsyncTask<CanvasObject, Void, CanvasObject> {
     }
 
     @Override
-    protected CanvasObject doInBackground(CanvasObject... canvasObjects) {
+    protected Void doInBackground(String... strings) {
         Log.d("SOCKET", "I am in execute");
         Socket socket;
         try {
@@ -80,15 +80,15 @@ public class Client extends AsyncTask<CanvasObject, Void, CanvasObject> {
             e.printStackTrace();
         }
 
-        CanvasObject data = canvasObjects[0];
+        String data = strings[0];
         try {
             output.writeObject(data);
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("SOCKET", data.x + " " + data.y + " " + data.flag);
-        return data;
+        Log.d("SOCKET", data);
+        return null;
     }
 
 //    class Thread2 implements Runnable {
