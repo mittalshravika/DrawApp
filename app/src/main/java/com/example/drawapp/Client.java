@@ -27,6 +27,8 @@ public class Client extends AsyncTask<String, Void, Void> {
 
     static private ObjectOutputStream output;
     static private ObjectInputStream input;
+    static private Socket socket = null;
+    static private int count = 0;
 //    static class Thread1 implements Runnable {
 //        public void run() {
 //            Socket socket;
@@ -70,18 +72,22 @@ public class Client extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... strings) {
         Log.d("SOCKET", "I am in execute");
-        Socket socket;
         try {
-            socket = new Socket(SERVER_IP, SERVER_PORT);
-            output = new ObjectOutputStream(socket.getOutputStream());
-            input = new ObjectInputStream(socket.getInputStream());
-            Log.d("SOCKET", "Connected");
+            if (count == 0){
+                Log.d("SOCKET", "Trying to connect");
+                socket = new Socket(SERVER_IP, SERVER_PORT);
+                output = new ObjectOutputStream(socket.getOutputStream());
+                input = new ObjectInputStream(socket.getInputStream());
+                Log.d("SOCKET", "Connected");
+                count = count + 1;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         String data = strings[0];
         try {
+            Log.d("SOCKET", "Writing object");
             output.writeObject(data);
             output.flush();
         } catch (IOException e) {

@@ -20,4 +20,13 @@ public class MainActivity2 extends AppCompatActivity {
     public void clearCanvas(View v){
         canvasView.clearCanvas();
     }
+
+    public void updateCanvas(String data){
+        runOnUiThread (new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+    }
 }

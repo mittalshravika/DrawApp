@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -107,12 +109,13 @@ public class CanvasViewServer extends View {
                     output = new ObjectOutputStream(socket.getOutputStream());
                     input = new ObjectInputStream(socket.getInputStream());
                     Log.d("SOCKET", "Connected");
-                    while(!Thread.currentThread().isInterrupted())
+                    while(true)
                     {
                         try {
                             data = (String) input.readObject();
-                            serverSocket.close();
-                            return data;
+                            Log.d("SOCKET", "I am listening");
+                            updateCanvas(data);
+                            Log.d("SOCKET", "Listening again");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -124,6 +127,48 @@ public class CanvasViewServer extends View {
                 e.printStackTrace();
             }
             return data;
+        }
+
+        public void updateCanvas(final String data){
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (data != null) {
+                            Log.d("SOCKET", "In updateCanvas");
+                            Log.d("SOCKET",data);
+                            String[] points = data.split(";");
+                            for (int i = 0 ; i < points.length ; i++){
+                                String pt = points[i];
+                                String[] val = pt.split(",");
+                                float x = Float.parseFloat(val[0]);
+                                float y = Float.parseFloat(val[1]);
+                                int flag = Integer.parseInt(val[2]);
+
+                                switch (flag){
+                                    case -1:
+                                        StartTouch(x, y);
+                                        invalidate();
+                                        break;
+                                    case 0:
+                                        moveTouch(x, y);
+                                        invalidate();
+                                        break;
+                                    case 1:
+                                        upTouch();
+                                        invalidate();
+                                        break;
+                                }
+                            }
+                        }
+                        else{
+                            Log.d("SOCKET","In else");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         @Override
